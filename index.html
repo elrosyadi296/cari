@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cari Siswa — Pembagian Kelas 2026 | MTs YAPIKA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep: #0b1f3a;
+    --navy-mid: #123c69;
+    --gold: #d4af6a;
+    --gold-soft: #f0dcb0;
+    --paper: #f7f3e9;
+    --emerald: #159a7f;
+    --emerald-deep: #0d6e5a;
+    --ink: #10202f;
+    --muted: #7c8aa0;
+    --radius: 22px;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; }
+  body{
+    margin:0;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(212,175,106,0.10), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(21,154,127,0.12), transparent 45%),
+      linear-gradient(180deg, var(--navy-deep) 0%, #0e2749 55%, var(--navy-mid) 100%);
+    color:#fff;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:6vh 20px 60px;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* Faint arabesque geometric watermark */
+  .arabesque{
+    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.06;
+    background-image: radial-gradient(circle, transparent 0 18px, rgba(255,255,255,0.6) 19px 20px, transparent 21px);
+    background-size: 90px 90px;
+    mask-image: radial-gradient(ellipse at center, black 0%, transparent 75%);
+  }
+
+  .brand{
+    position:relative; z-index:1;
+    display:flex; align-items:center; gap:10px;
+    margin-bottom: 8px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    font-size:12px;
+    color: var(--gold-soft);
+    opacity:0.85;
+  }
+  .brand .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--gold); }
+
+  .hero{
+    position:relative; z-index:1;
+    text-align:center;
+    margin-bottom: 34px;
+    transition: margin 0.35s ease;
+  }
+  .hero.compact{ margin-bottom: 22px; }
+  .hero h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: clamp(30px, 5vw, 48px);
+    margin:0 0 6px;
+    background: linear-gradient(90deg, #ffffff 20%, var(--gold-soft) 65%, var(--gold) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .hero p{
+    margin:0; color:#c7d3e6; font-size:15px; font-weight:500;
+  }
+
+  .search-wrap{
+    position:relative; z-index:1;
+    width:100%; max-width:620px;
+  }
+  .search-box{
+    display:flex; align-items:center; gap:12px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 999px;
+    padding: 16px 22px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+  }
+  .search-box:focus-within{
+    border-color: rgba(212,175,106,0.6);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 0 4px rgba(212,175,106,0.15), inset 0 1px 0 rgba(255,255,255,0.14);
+    transform: translateY(-1px);
+  }
+  .search-box svg{ flex-shrink:0; opacity:0.75; }
+  .search-box input{
+    flex:1; background:transparent; border:none; outline:none;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    font-size:16px; font-weight:500; color:#fff;
+  }
+  .search-box input::placeholder{ color: rgba(255,255,255,0.45); }
+  .clear-btn{
+    background:none; border:none; color: rgba(255,255,255,0.5);
+    cursor:pointer; display:none; padding:4px; border-radius:50%;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .clear-btn:hover{ color:#fff; background:rgba(255,255,255,0.12); }
+  .clear-btn.show{ display:flex; }
+
+  .hint{
+    text-align:center; font-size:13px; color: rgba(255,255,255,0.4);
+    margin-top:14px; position:relative; z-index:1;
+  }
+
+  .results{
+    position:relative; z-index:1;
+    width:100%; max-width:760px;
+    margin-top: 30px;
+    display:grid;
+    gap:16px;
+  }
+
+  .card{
+    background: linear-gradient(160deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    display:flex; align-items:center; gap:18px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transform-style: preserve-3d;
+    transform: perspective(800px) rotateX(0deg) rotateY(0deg) translateY(14px) scale(0.96);
+    opacity:0;
+    animation: popIn 0.5s cubic-bezier(.2,.9,.3,1.3) forwards;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.28);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .card:hover{
+    border-color: rgba(212,175,106,0.45);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,175,106,0.15);
+  }
+  @keyframes popIn{
+    to{ opacity:1; transform: perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1); }
+  }
+
+  .avatar{
+    flex-shrink:0;
+    width:54px; height:54px; border-radius:16px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:19px;
+    color: var(--navy-deep);
+    background: linear-gradient(145deg, var(--gold-soft), var(--gold));
+    box-shadow: 0 6px 16px rgba(212,175,106,0.35), inset 0 1px 1px rgba(255,255,255,0.6);
+  }
+
+  .info{ flex:1; min-width:0; }
+  .info .name{
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:18px;
+    margin:0 0 6px; color:#fff;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .info .meta{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+  }
+  .chip{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; font-weight:600;
+    padding: 4px 10px; border-radius:8px;
+    color: #dfe7f3;
+    background: rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.1);
+  }
+  .chip.now{
+    color: #d7f5ec;
+    background: rgba(21,154,127,0.18);
+    border-color: rgba(21,154,127,0.4);
+  }
+  .arrow{ opacity:0.5; font-size:12px; }
+  .info .wali{
+    margin:8px 0 0; font-size:12.5px; color: rgba(255,255,255,0.5);
+    font-weight:500;
+  }
+  .info .wali span{ color: var(--gold-soft); font-weight:600; }
+
+  .wa-btn{
+    flex-shrink:0;
+    display:flex; align-items:center; gap:8px;
+    background: linear-gradient(145deg, var(--emerald), var(--emerald-deep));
+    color:#fff; text-decoration:none;
+    font-weight:700; font-size:13.5px;
+    padding:11px 16px; border-radius:14px;
+    box-shadow: 0 8px 18px rgba(21,154,127,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    white-space:nowrap;
+  }
+  .wa-btn:hover{
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 12px 26px rgba(21,154,127,0.45), inset 0 1px 0 rgba(255,255,255,0.25);
+    filter: brightness(1.06);
+  }
+  .wa-btn:active{ transform: translateY(0) scale(0.98); }
+
+  .empty, .prompt-empty{
+    position:relative; z-index:1;
+    text-align:center;
+    color: rgba(255,255,255,0.55);
+    margin-top: 36px;
+    font-size:14.5px;
+    max-width:400px;
+    animation: fadeIn 0.4s ease;
+  }
+  .empty strong{ color:#fff; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .count-badge{
+    position:relative; z-index:1;
+    align-self:flex-start;
+    max-width:760px; width:100%;
+    margin-top:30px;
+    margin-bottom:-12px;
+    font-size:12.5px; color: rgba(255,255,255,0.45);
+    padding-left:4px;
+    letter-spacing:0.02em;
+  }
+
+  footer{
+    position:relative; z-index:1;
+    margin-top:auto;
+    padding-top:50px;
+    font-size:12px; color: rgba(255,255,255,0.32);
+    text-align:center;
+  }
+
+  @media (max-width:560px){
+    .card{ flex-wrap:wrap; }
+    .wa-btn{ width:100%; justify-content:center; }
+    .avatar{ width:46px; height:46px; font-size:16px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card{ animation:none; opacity:1; transform:none; }
+    *{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="arabesque"></div>
+
+<div class="brand"><span class="dot"></span>MTs YAPIKA</div>
+
+<div class="hero" id="hero">
+  <h1>Cari Data Siswa</h1>
+  <p>Pembagian Kelas Tahun Ajaran 2026/2027</p>
+</div>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="white" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+    <input type="text" id="searchInput" placeholder="Ketik nama lengkap siswa..." autocomplete="off" autofocus>
+    <button class="clear-btn" id="clearBtn" aria-label="Hapus pencarian">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="prompt-empty" id="promptEmpty">Mulai ketik nama siswa untuk menampilkan kelas dan kontak wali kelas.</div>
+
+<div class="count-badge" id="countBadge" style="display:none;"></div>
+<div class="results" id="results"></div>
+<div class="empty" id="emptyState" style="display:none;">Nama <strong id="emptyQuery"></strong> tidak ditemukan. Periksa kembali ejaan nama.</div>
+
+<footer>Sistem Pencarian Kelas — MTs YAPIKA</footer>
+
+<script>
+/* ==========================================================
+   SUMBER DATA SISWA
+   Ganti / tambah data di array ini sesuai data riil madrasah.
+   Format nomor WA wali kelas: kode negara tanpa "+" (contoh 6281234567890)
+   ========================================================== */
+const STUDENTS = [
+  { nama:"ADINDA RISQITA RAHMA", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"AFNAN MAHIRA MAJDIYA", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"AHMAD MAULANA", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"AKFINI NAJWA AZKIYA", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"ALIF MUTTAKIN", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"ALYANU AF IDAH", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"AZKA LAILA HUSNA", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"DEVITA SILVIANA AZ ZAHRA", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"FAKHRI AKHMAD", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"GALIH FERDIANSYAH NUR KHOLIQ", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"IBNU LATHIF", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"KHANZA ALESHA ZAHRA", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"M KHANIFUDIN", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"MUHAMAD KUN KARIM", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"MUHAMAD NAZAM RIFA'I", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"NAFISYAH SONDANG PUJIASIH", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"ROBITH RACHMAN CHAKIM", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"SHIHAB ALWI MUSTOFA", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"SHOKHABIYYAH KHOIRIN NISAA", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"TRI MUJIONO", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"VIKY IZZATI KHASANATI", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"WAFDA YAZID ARROFIQ", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"ZAHRA ASYLA RAHMA", asalKelas:"7 KOMPETISI", kelasSekarang:"8 KOMPETISI", waliKelas:"Hana Wahyuni, S.Pd", waNomor:"62895327512526" },
+{ nama:"AHMAD 'AZMI SYUHADA", asalKelas:"7A", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"AHMAD FAJAR SHODIK", asalKelas:"7B", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"ALIFFIA RIZQIKA", asalKelas:"7F", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"AMIN FATAH", asalKelas:"7A", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"ANISA SALSABILA", asalKelas:"7F", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"ARUM DESANTI", asalKelas:"7F", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"BILAL MUHTAROM", asalKelas:"7D", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"FARKHATUL MUSTAFIDA", asalKelas:"7F", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"HILMI MUSYARROF", asalKelas:"7D", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"HILWA FURAIDA", asalKelas:"7F", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"INDAH NIKMATUL FADHILAH", asalKelas:"7E", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"JANCEL HARUMI SURYASEVA", asalKelas:"7F", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"KANIA ASRI LIANI", asalKelas:"7E", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"LUQMAN CHAKIM ABDILLAH", asalKelas:"7C", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"LUQMAN FAITH ABDILLAH", asalKelas:"7D", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"MARIYATUR RIYADHOH", asalKelas:"7E", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"MELISA SEPTIANI", asalKelas:"7E", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"MUHAMAD NUR FAOZI", asalKelas:"7B", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"NAFISATUL ULYA", asalKelas:"7E", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"NAILA SYIFA RAHMA", asalKelas:"7E", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"NOVIANA PUTRI ANGGITA", asalKelas:"7E", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"RAFLI UMAR RAMADHAN", asalKelas:"7B", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"RAIHAN INDRA MUZAKI", asalKelas:"7A", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"RIO ARDIANSYAH", asalKelas:"7A", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"SEPTHIA SAFUROTUN NAJAH", asalKelas:"7E", kelasSekarang:"8A", waliKelas:"Agung Mubarok, S.Pd", waNomor:"6282313578017" },
+{ nama:"ABIYAS RANGGA RUDIANA", asalKelas:"7B", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"ACHMAD BACHRUL 'ULUM AL - MACHFUD", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"ALVIN RAMADHAN SUBIANTO", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"AUFA HUSNI ABDILLAH", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"BAYU GUSTAV AULIA", asalKelas:"7B", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"FAJAR SETIYONO", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"GUESTA PRIYA ADILUHUNG", asalKelas:"7B", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"HAKIM MUBAROK", asalKelas:"7B", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"ISNAN DZULFAN AL KHAFID", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"JULIAN ARKA HIDAYAT", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"LUTFI ARFAN JUNAIDI", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"MALIK IBRAHIM", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"MUHAIMIN RIZAL", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"MUHAMAD BAHTIAR JEFREY HUSNI", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"MUHAMAD DAFFA VEDRIANSYAH", asalKelas:"7B", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"MUHAMAD GHOZI", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"MUHAMAD KHOIRUL ANAM", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"MUHAMAD SHOFI MUBAROK", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"MUHAMMAD HAKUL FAIZIN", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"MUHAMMAD LUQMAN AL FARIZI", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"OKTORIAN AKBAR MUBAROK", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"RANDY BEKTI AL FAHIM", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"SALMAN KHAN NUR SALIM", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"SANDIKA DIAN RAMADAN", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"SOLIHUL HUDA", asalKelas:"7A", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"ZAIN REZQY KHAIRULLOH", asalKelas:"7B", kelasSekarang:"8B", waliKelas:"Umi Mutohirotun Nisa, S.Pd", waNomor:"6288985185288" },
+{ nama:"AHMAD ASYROFUL ANAM", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"AHMAD FADLY MUSTOFA", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"AHMAD NAUFAL FADHIL", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"ALFIAN SURYO VIRGINITY ARYANTO", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"'AQIL KHANIFA MU'ALI", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"AQIL NUR HAKIM", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"ARZAT KUNNUR AFANDI", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"FEBRIAN QALIFA ALFARIZKI", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"FERI FEBRIANZAH", asalKelas:"7B", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"GUSTI RAMADHANI", asalKelas:"7B", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"HABIB FERRIS NIZAR MOHAMAD", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"ILYAS ROBI AL KURNIYANTO", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"IYAS CHANIF TIYANTO", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"LUQMAN HAKIM ALBASTOMI", asalKelas:"7B", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"MUHAMAD AZHAR SARIF", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"MUHAMAD FATHUL MAULA", asalKelas:"7B", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"MUHAMAD NAUFAL RAMADHAN", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"MUHAMAD WILDAN AL KHAFIZD", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"MUHAMMAD DAFFA PERMANA", asalKelas:"7B", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"MUHAMMAD MUSTOFA ALI", asalKelas:"7B", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"MUHAMMAD RIZKI GUNAWAN", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"MUHAMMAD SYAFIQ ROKHIM", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"MUKHAMMAD BAGUS SATRIO", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"RAFA WILDAN SAPUTRA", asalKelas:"7B", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"YAZID IRSYADI", asalKelas:"7B", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"ZARIF NAUFAL ARFANSYAH", asalKelas:"7C", kelasSekarang:"8C", waliKelas:"Abdul Wahab, S.Ag", waNomor:"6282191781748" },
+{ nama:"AHMAD MAROGI", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"AKHMAD MAULANA YUSUP", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"AZZAM AL MUKHOZIN", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"DHANANJAYA KALYANA NUSANTARA", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"EVAN MAULANA KAMIL", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"HABIB ADNAN AL FATH", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"IQBAL UBAYDI ABDULLOH", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"LABIB KHAUDLUL 'ULUM", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MAHBUB JUNAYDI", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMAD AZIS RAMDANI", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMAD FAKHRI KAMAL AL MUBAROK", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMAD FARKHAN ASNAWI", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMAD FREIZKY PRAMANA", asalKelas:"7B", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMMAD ARIF AZAKY", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMMAD BAHA UDIN", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMMAD FADHIL RAIHAANU IKBAR", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMMAD ILHAM AZIZUL LUTFI", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMMAD KHILMI BIQ'NADAA", asalKelas:"7B", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMMAD NURYAZID SURURI", asalKelas:"7B", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHAMMAD SULTHON AL KAUTSAR", asalKelas:"7C", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUHTI ABIL AFFANDI", asalKelas:"7C", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"MUNTAHAA SHOBRUL 'ULAA", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"NAZREY ALI HANAFI", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"QOIS SYAIKHURROHMAN", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"REZA WINDRIAJI", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"TEGUH RAMDANI", asalKelas:"7D", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"TRI AFGANI", asalKelas:"7B", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"TYAS ADI NUGROHO", asalKelas:"7C", kelasSekarang:"8D", waliKelas:"Luthfi Rosyadi, S.Ag", waNomor:"6285875522018" },
+{ nama:"`AINI HASBIYATUL HUSNA", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"ADINDA FULAN ALKARIMAH", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"ANGGITA NATASA RAHMADANI", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"AQILAH NURUL IZZAH", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"ASFAKHA KHAIROTUN NIKMAH", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"ATHAYA EHSA FATIHAH", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"CHALIMATUL ULFA", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"CICA BAYU SAPUTRI", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"FAIQOTUS SHOLIHAH", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"FARIDATUN NIDA", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"FRISKA FEBRIANI", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"HANANTIA FILZA ADANI RH", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"HASNA KHOIRUNNISA", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"JUAN LUTFIA RAHMADANI", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"KHIYAROTUL WAFIYAH", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"LUHITA CLARA JATI LISTALINING PURNAWAN", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"MARIYATUL MASRUROH", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"NADHIROTUZZAHRO", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"NAFA ANINDYA LATIFAH", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"NAILA ANA NAJIAH", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"NININ NABILA KHAIRUNNISA", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"RIRIN FITRI YANTI", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"SITI FADILAH", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"SUCI GUNAWAN PUTRI", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"SYAKILA AZZAHRA", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"SYIFA AYATUL HUSNA", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"TANI'A EKA DAYANTRI", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"VELLICIA DWIYAN PUTRI RIYADI", asalKelas:"7F", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"ZULFATU NI'MAH", asalKelas:"7E", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"MUTIARA UZMA AL FIRDAUS", asalKelas:"8 PINDAHAN", kelasSekarang:"8E", waliKelas:"Zulfatussuroya, S.Pd", waNomor:"6285867107303" },
+{ nama:"AMANDA DWI PUSPITASARI", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"AMANI NABILATUN ASLA", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"AULIA KHUSWATUN MA'RIFAH", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"AULIA RAHMA", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"FARIKHATUN AULIA", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"FELLIN CAHYANINGTYAS", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"HERLINA NURAINI", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"ISTINA ASSYABIYA RAFIFA", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"ISYFI KHUMAIROH", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"KANAYA SALWA", asalKelas:"7F", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"KHALDA MAHYA ALHUSNA", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"KHALISYAH PUTRI INDRIYANTI", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"KHASANATUL MA'RIFAH", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"LULU ARIFATUL CHOLIFAH", asalKelas:"7F", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"LULU NHADIFAH", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"MUFTI IMROATUN NAFISYAH", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"NABILA NUR KHALIFAH", asalKelas:"7F", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"NAFISA AZZAHRA", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"NAH DINA VIROTUN NAZWA", asalKelas:"7F", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"NISAUL FADILAH", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"NUR ANNITA", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"PIPIT YULIANA", asalKelas:"7F", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"RAHMA IMROATUSSILMI", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"RIF'ATUL AGHNIYAH", asalKelas:"7F", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"RIFNGATUN MUNAWAROH", asalKelas:"7H", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"SAIDA HASNA AULIA", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"TRI NAILUL INAYAH", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"ULFATUL AFIFAH", asalKelas:"7G", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"ZAHWA RAMADANI", asalKelas:"7F", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"Surfina Alya Firzanah", asalKelas:"8 PINDAHAN", kelasSekarang:"8F", waliKelas:"Al Fiah Rahmawati, S.Pd", waNomor:"62895392644247" },
+{ nama:"AKIFA NAILA APRILIANI", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"ANANDA LUTHFIA ISTIQOMAH", asalKelas:"7G", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"AULIA IZZATUNNISA", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"AZKA NAILATUN NAFIZAH", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"CLARISSA MEGA NANDA", asalKelas:"7G", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"FARKHATUL ISNAENI KAMILA", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"FIN FATIMATUZZAHRO", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"INDAH AINUNNIYAH", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"JIHAN DEWI SALAMAH", asalKelas:"7G", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"JINAN ZAHIRA", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"KHANSA SALSABILA", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"LAILA KHOTIMATUNISA", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"MAULIDAN UMMU MAGHFIROH", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"MEILIA AZZAHRA PUTRI", asalKelas:"7G", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"NADA AWALIYAH FITRI", asalKelas:"7G", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"NOFITA ANGGRAENI", asalKelas:"7G", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"PUTRI NAILA ZAHRO", asalKelas:"7G", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"QURROTU 'AINI MALA'AT JAMELA", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"RAIHANA ABELLIA SEPTIANI", asalKelas:"7F", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"RERE MEIDA", asalKelas:"7G", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"RISQA WAKHIDATURROKHMAH", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"ROHMATUN NAZILAH", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"SASKIA TESYA SAPUTRI", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"SAVIR EL MA'WA", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"TANIA NURY NUR AINI", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"TANISA LATIF HADIANSAH", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"TRI AMALIA", asalKelas:"7G", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"TRI SULIS TIANI", asalKelas:"7G", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"ZIDNI ILMA AHSANI", asalKelas:"7H", kelasSekarang:"8G", waliKelas:"Ulfatussa'diyah, S.Pd", waNomor:"6281325558041" },
+{ nama:"ATHAYA PUTRI ZAYYAN", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"FASTABIQUL KHOEROTH", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"FITRIA NUR AZIZAH", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"FITRIAN AGUSTINA PUTRI", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"GHAITSA ZAHRATUS SYIFA", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"ITAUS SALWAUL CHAKIM", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"KEYLA SHAFA QUROTA TA'AYUN", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"M.GHIFARI HUSAIN", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"MUHAMMAD IMAM SHOFIYUDDIN", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"MUHAMMAD SAHLAN AL WAFA", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"MUHAMMAD ZIDAN AKMALUL KAFIE", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"NAHYA NAILAL BAROKAH", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"NAILA NAFISAL JANNAH", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"NAZWA SAFIRA PUTRI", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"NIDAUS ZUHRIYAH", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"NIKEISHA MAHYA ANNAFI`", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"RIKI KURNIAWAN", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"SAYYIDAH ALMAS QOTHRUNNADA", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"SILFIKA NURUL CHILMI", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"UMMI BAROKATUL HABIBAH", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"UMMU CHABIBAH", asalKelas:"8 KOMPETISI", kelasSekarang:"9 KOMPETISI", waliKelas:"Amanatul Qirom, S.Pd", waNomor:"6282244788530" },
+{ nama:"AHMAD NABIL RIZQIARTO", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"'AINUN KAMILAH", asalKelas:"8A", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"AKHMAD FAUZAN", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"AKHMAD RIDWAN SURURI", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+"{ nama:""AMRINA NING MARDIANA ULFAH
+"", asalKelas:""8A"", kelasSekarang:""9A"", waliKelas:""Winda Murwani, S.Pd"", waNomor:""6287738532176"" },"
+{ nama:"CATUR ALDERCY CHASIA BILHA", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"DESTRIN ALVIANDRA PUTRA", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"DINI KHOIRUNNISA", asalKelas:"8G", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"FEBRIAN BAGUS FIRMANSAH", asalKelas:"8D", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"FIRDA AMAL LIA", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"HANINDYA NUR HANIFAH", asalKelas:"8E", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"HILMY FAEYZA", asalKelas:"8D", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"ILHAM NASRULLOH", asalKelas:"8B", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"ISNAENI WAHYUNINGSIH", asalKelas:"8E", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"M. AZAM MUZAKI", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"MARTINA DILOSA", asalKelas:"8F", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"MARWAKHUL KARUNIA", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"RIFAA' KHORUNNISA'", asalKelas:"8G", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"RIFKI ZAKI PRATAMA", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"RIZKY RAMADHAN", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"SAIDA NUR KHASANAH", asalKelas:"8E", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"SOFI ANWAR", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"SYIFA AGUSTINA RAMADANI", asalKelas:"8G", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"ZAINUL LABIB KAFABIHI", asalKelas:"8A", kelasSekarang:"9A", waliKelas:"Winda Murwani, S.Pd", waNomor:"6287738532176" },
+{ nama:"AGHA MAULANA ABBASY", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"AHMAD AUFA GHONI ASHROF", asalKelas:"8 PINDAHAN", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"AHMAD FAUZAN MUBAROK", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"ALFIAN PRATAMA NUROHMAN", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"ASIF FAJARULLOH MUSTAKIM", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"DAFFA MUFID HAKIM", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"FAIZ ABDURROHMAN", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"FARIS NAUFAL HARIYANTO", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"FAZA' ASYIQURROCHMAN", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"GILANG RAMADHAN", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"IWAN MAULANA SAPUTRA", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"IZZI ALFAN KHOBIR", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"KHOERUL MUARIFIN", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"M IRFAN ROSYADI", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"MASRURI KHOLIK", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"MIFTAHUL DANA FIRDAUS", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"MOHAMAD AMRI HIDAYAH", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"MOHAMAD KHANIF NAUFAL", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"Muhamad Alfian Priyanto", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"MUHAMMAD KHOERUL ANAM", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"NAJMI ZAIN", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"NIZAM DWI APRILIO", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"RAHMAT WAHYUDI", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"RIZKY FAUZAN MUSTHOFA", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"RIZQI MUBAROK", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"Syafiq Annajmutsaqib", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"TATAN SETIAN", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"YOGA PRASETYO SASMITA SUPRIATNA", asalKelas:"9 PINDAHAN", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"YUSUF MAHARDIKA", asalKelas:"8B", kelasSekarang:"9B", waliKelas:"Ayyun Farikhatun Jannah, S.Pd", waNomor:"6282133112231" },
+{ nama:"ABDUL MALIK MAHMUD", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"Aby Abdiya Sukma Raharjo", asalKelas:"8B", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"ALGIAS SYAH FAHRI", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"ALI ZIDAN SETIAWAN", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"AMAR MUSTOFA", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"ARI DWI SAPUTRA", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"AZHAR AFYANSYAH", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"FAKHRI ABAN", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"GUNAWAN DWI CAHYO", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"KHAMDAN KHOMSIN", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"KHOERUL AKHMAD NURROFIQ", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MAULANA IBRAHIMUVID", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MOHAMMAD FAISAL RAMADAN", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MUDRIK ANWAR", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MUHAMAD HISYAM MAULANA", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MUHAMAD TOYYIBI", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MUHAMMAD HISYAM MUSYAFFA", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MUHAMMAD KHAIDAR", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MUHAMMAD LUTFI AIMMATUL KHAFILI", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MUHAMMAD WAHYU ILLAHI", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MUKHAMMAD AZKA HANIF", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"MUSLIH HUMAEDILAH", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"RAIHAN RAMDHANI", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"RAVQA ADITYA RIFALDO", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"SABDO WIBISONO", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"SYIFA'U NUR FADLILLAH", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"WILDAN FAHRY SAPUTRA", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"ZIDNI MUBAROK", asalKelas:"8C", kelasSekarang:"9C", waliKelas:"Siyam Tohiroh, S.Pd", waNomor:"6285700541077" },
+{ nama:"AHMAD ALI ZAIN", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"AHMAD FAQIHUNNAJA", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"AHMAD MUDHOFAR SAKBAN", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"AHMAD MUHTADIN", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"AKHMAD WILDAN SURURI", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"AKYAS HILMI", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"AMRUL MUSTOFA", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"ARRAFKHA JOVYANSYAH PUTRA HIDAYAT", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"BINTANG SEPTIAJI PRAKOSO", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"DANI FAIQ KHAIRULLOH", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"DANIAL FATHUL KHAKIM", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"FAIQ ANNAS KHABIBI", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"FARHAN ADITIYA PRATAMA", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"FARHAN AZIZ ZULFIKAR", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"FUAD IBNI HASAN", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"ILHAM HENDRY MAULANA", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"M.MIFTAKHURROKHMAN", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"MAULANA ALI SYAHBANA", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"Maulana Bilal Arrifai", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"MUH ASADUDDIN KHOLISUL ANWAR", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"MUHAMAD 'AINURROFIQ", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"MUHAMAD SAIF", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"MUHAMMAD AZZAM SIROJUDIN", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"MUHAMMAD FAUZUL MUBIN", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"MUHAMMAD NUGIE ALFATHIR", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"RIDWAN NUR KHAKIM", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"RIZKY ADITYA PRATAMA", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"TRI PUTRA RAMADHANA", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"YAHYA ARIF PURNOMO", asalKelas:"8D", kelasSekarang:"9D", waliKelas:"Catur Mulyantoro, S.Pd", waNomor:"6289677669746" },
+{ nama:"ADINDA KHEISYA PUTRI STEVANY", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"Aghitsna Bilqis Ashifa Barqiya", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"AJENG RAHAYU", asalKelas:"8A", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"'ATIQ HANIFATURROHMAH", asalKelas:"8A", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"AULIA KHOIRUN NISA RAMADANI", asalKelas:"8A", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"AZMALIA NOVELA", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"DEWI FITRIYANI", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"DWI RAYA NINGTYAS", asalKelas:"8A", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"FAIZAH NUHA MUYASAROH", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"FINA LAELATUL FAJRIYAH", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"FLARIZA ZULVANA", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"IKA ISMAULHAWA", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"INDRI NUR NAYLA", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"KHOLIFAH NUR AZZAHRA", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"KHUSNA CHOIRUN NISSA", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"KUNTI NAELA JANATA", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"LAILATUSSANGADAH HANANIE", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"LILIS RATNASARI", asalKelas:"8A", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"LULUATUN NAFISAH", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"MITA NUR BAETI", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"NADHIRA ALYA AZ ZAHRA", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"NAELI AZIZAH", asalKelas:"8A", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"NAFIS NAILIN NURFITA", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"NGURWATIL WUTSQO BASHORI", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"NOER HASSANAH", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"NURI RAHMAYANTI", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"PRISKA SETYANINGSIH", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"RAFELISHA HADINING PUTRI", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"RENNY NUR 'AENI", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"SYIFA'UL JANNAH", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"WARDAH NAYLA KAMAL", asalKelas:"8E", kelasSekarang:"9E", waliKelas:"Wasiman, S.Sos", waNomor:"6285702776515" },
+{ nama:"AFIFATUL A'SYAHIRA", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"AFRIZA TASYA DWI CAHYONO", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ALFIYATURROHMAH RAMADHANI", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ANGGUN JULIAN PRASTIWI", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ANNISA HUMAIRA", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ASFA NASIFA", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ATSILLA LUQYAANA", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"AWALIA SYIFA FUADA", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"DHEA ANINDIA PUTRI", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"DIKA AURA PUTRI", asalKelas:"8A", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"EKA NURUL FATIHAH", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ELISA TRI SEPTIYANI", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ELYSHA SYAHRANI", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"FARAH ANJANI", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"FIYYA BAROOKATUN NISAAU SYARIFAH", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"HANIFAH KHARISMA PUTRI", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"IKA SETIA NINGSIH", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"INTAN AJENG PANGESTI", asalKelas:"8A", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"IZZATY ALTHOFUNNISA SUKASTO", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"LUISA DESTI MA'RIFAH", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"MALIHATUZ ZAHRO", asalKelas:"8A", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"NADIA HAFSYAH RAMADHANI", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"NASRIYATUL KHOERIYAH", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"RITA KHAIROTUL HIDAYAH", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"RIZKI LUTFI ANNISA", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ROKHMAH NAJATI", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"SEKAR AYU VIDIASTUTI", asalKelas:"8A", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"SITI AYDA ALTHOFUNNISA", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ZAHIRA KURNIA ASIH", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ZAHROTUL FIRDAUS", asalKelas:"8F", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"ZULFA NUR AINI", asalKelas:"8A", kelasSekarang:"9F", waliKelas:"Riski Irfani, S.E", waNomor:"6285280877410" },
+{ nama:"AFIFA KHOIRUNNISA", asalKelas:"8A", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"AISYAH SUCI RISNAWATI", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"ALIKA RIZQUINA RAHMAH", asalKelas:"8A", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"'ALIYA JAZILA", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"ASIFA TRIANINGSIH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"ASYIFATUL KHOIROH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"DIAJENG SETYA PANGESTI", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"DINI MA'RUFI", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"FARAH AYUMNA", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"FEBRIANI AMELIASARI", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"FU`ADATUL FITRIYAH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"HANA' SOLIKHAH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"HASNA UMI SALAMAH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"KARIMATIL MA'RIFAH AHMAD", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"LIVYA NURUL UMMAH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"MAGHFIROTUS ZAZKIA", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"MAULIDA KHOIYRUNNISA", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"MU' THI ATURROHMAH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"NIKEN FADHILATUL AZIZAH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"NURUL KAROMATUL LAILI", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"SALISA ALIF NAJATI", asalKelas:"8A", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"SALSA AMELIA SUBEKTI", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"SEKAR ARUM CAHYANINGTYAS", asalKelas:"8A", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"SEPTYANA RAGIL SAPUTRI", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"SHIFNA IDAMATUL AZMINA", asalKelas:"8A", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"SYIFAUL UMMAH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"TIARA SALSABILLA", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"ULFI LAILATUZZAHRO", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"VIDA MA'TUL LATIFAH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"YUNI NURHALIMAH", asalKelas:"8G", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+{ nama:"ELVA DINDA APRELIA", asalKelas:"9 PINDAHAN", kelasSekarang:"9G", waliKelas:"Muhamad Abdul Faqih, S.Pd", waNomor:"6282325658451" },
+
+];
+
+const input = document.getElementById('searchInput');
+const clearBtn = document.getElementById('clearBtn');
+const resultsEl = document.getElementById('results');
+const emptyState = document.getElementById('emptyState');
+const emptyQuery = document.getElementById('emptyQuery');
+const promptEmpty = document.getElementById('promptEmpty');
+const countBadge = document.getElementById('countBadge');
+const hero = document.getElementById('hero');
+
+function normalize(str){
+  return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function initials(name){
+  return name.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+function waLink(student){
+  const pesan =
+`Assalamu'alaikum wr wb.
+
+Saya wali dari ${student.nama}, yang sekarang masuk kelas ${student.kelasSekarang}.
+
+Mohon agar nomor ini, dimasukkan ke grup kelas.
+
+Terimakasih.
+
+Wassalamu'alaikum wr wb`;
+  return `https://wa.me/${student.waNomor}?text=${encodeURIComponent(pesan)}`;
+}
+
+function renderResults(query){
+  resultsEl.innerHTML = '';
+  const q = normalize(query.trim());
+
+  if(!q){
+    promptEmpty.style.display = 'block';
+    emptyState.style.display = 'none';
+    countBadge.style.display = 'none';
+    hero.classList.remove('compact');
+    return;
+  }
+
+  hero.classList.add('compact');
+  promptEmpty.style.display = 'none';
+
+  const matches = STUDENTS.filter(s => normalize(s.nama).includes(q));
+
+  if(matches.length === 0){
+    emptyState.style.display = 'block';
+    emptyQuery.textContent = `"${query}"`;
+    countBadge.style.display = 'none';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+  countBadge.style.display = 'block';
+  countBadge.textContent = `${matches.length} siswa ditemukan`;
+
+  matches.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.animationDelay = (i * 0.06) + 's';
+    card.innerHTML = `
+      <div class="avatar">${initials(s.nama)}</div>
+      <div class="info">
+        <p class="name">${s.nama}</p>
+        <div class="meta">
+          <span class="chip">${s.asalKelas}</span>
+          <span class="arrow">&#8594;</span>
+          <span class="chip now">${s.kelasSekarang} &middot; 2026</span>
+        </div>
+        <p class="wali">Wali kelas: <span>${s.waliKelas}</span></p>
+      </div>
+      <a class="wa-btn" href="${waLink(s)}" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.07L2 22l5.1-1.33A9.94 9.94 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.6 0-3.1-.43-4.4-1.19l-.32-.19-2.98.78.8-2.9-.2-.3A7.94 7.94 0 014 12c0-4.42 3.58-8 8-8s8 3.58 8 8-3.58 8-8 8zm4.4-5.6c-.24-.12-1.44-.71-1.66-.8-.22-.08-.38-.12-.55.12-.16.24-.62.8-.76.96-.14.16-.28.18-.52.06-.24-.12-1-.37-1.9-1.17-.7-.62-1.18-1.4-1.31-1.64-.14-.24-.01-.37.11-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.8-.2-.48-.4-.42-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.13 3.64.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z"/></svg>
+        Hubungi Wali Kelas
+      </a>
+    `;
+    resultsEl.appendChild(card);
+  });
+}
+
+input.addEventListener('input', (e) => {
+  clearBtn.classList.toggle('show', e.target.value.length > 0);
+  renderResults(e.target.value);
+});
+
+clearBtn.addEventListener('click', () => {
+  input.value = '';
+  clearBtn.classList.remove('show');
+  input.focus();
+  renderResults('');
+});
+
+renderResults('');
+</script>
+</body>
+</html>
