@@ -488,7 +488,6 @@ const STUDENTS = [
 { nama:"MUHAMAD SAFIQ RAMADHAN", asalKelas:"MI MA'ARIF MANGUNRANAN", kelasSekarang:"7 Vokal", waliKelas:"Inarotun Nadhiroh, S.Pd", waNomor:"6288221237904" },
 { nama:"MUHAMMAD ARSYA DANI ULINNUHA", asalKelas:"MI MA'ARIF WIDORO ", kelasSekarang:"7 Vokal", waliKelas:"Inarotun Nadhiroh, S.Pd", waNomor:"6288221237904" },
 { nama:"MUTIA NUR'AINI", asalKelas:"SDN 1 LUNDONG", kelasSekarang:"7 Vokal", waliKelas:"Inarotun Nadhiroh, S.Pd", waNomor:"6288221237904" },
-{ nama:"MUTIARA UZMA AL FIRDAUS", asalKelas:"SDN BINTARO 14 PAGI", kelasSekarang:"7 Vokal", waliKelas:"Inarotun Nadhiroh, S.Pd", waNomor:"6288221237904" },
 { nama:"NURIN NAJWA AZ ZAHRA", asalKelas:"SD NEGERI ROWOREJO", kelasSekarang:"7 Vokal", waliKelas:"Inarotun Nadhiroh, S.Pd", waNomor:"6288221237904" },
 { nama:"REIHANA LATIFAH ZAHRA", asalKelas:"SD N TUKINGGEDONG", kelasSekarang:"7 Vokal", waliKelas:"Inarotun Nadhiroh, S.Pd", waNomor:"6288221237904" },
 { nama:"REKI MUTTAQIN", asalKelas:"SD NEGERI PENEKET", kelasSekarang:"7 Vokal", waliKelas:"Inarotun Nadhiroh, S.Pd", waNomor:"6288221237904" },
